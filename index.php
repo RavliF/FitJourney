@@ -19,7 +19,7 @@ if ($bmi_result->num_rows > 0) {
 $bmi_query->close();
 
 
-$exercise_query = $conn->prepare("SELECT * FROM exercise_logs WHERE user_id = ? ORDER BY created_at DESC LIMIT 5");
+$exercise_query = $conn->prepare("SELECT * FROM exercise_logs WHERE user_id = ? AND deleted_at IS NULL ORDER BY created_at DESC LIMIT 5");
 $exercise_query->bind_param("i", $user_id);
 $exercise_query->execute();
 $exercise_result = $exercise_query->get_result();
@@ -52,6 +52,9 @@ $exercise_query->close();
                     <p class="text-gray-600">No BMI records yet.</p>
                 <?php endif; ?>
                 <a href="calculate_bmi.php" class="mt-4 inline-block text-blue-600 hover:text-blue-800">Update BMI →</a>
+                <div class="my-6 text-center">
+                    <img src="components/img/BMI-Chart.png" alt="BMI Info" class="bmi-image mx-auto">
+                </div>
             </div>
 
             <div class="bg-white rounded-lg shadow p-6">
@@ -64,7 +67,15 @@ $exercise_query->close();
                                     <h3 class="font-medium capitalize"><?php echo str_replace('_', ' ', $exercise['exercise_type']); ?></h3>
                                     <p class="text-sm text-gray-600"><?php echo date('M d, Y', strtotime($exercise['created_at'])); ?></p>
                                 </div>
-                                <span class="text-gray-600"><?php echo $exercise['duration']; ?> min</span>
+                                <div class="flex items-center">
+                                    <span class="text-gray-600 mr-4"><?php echo $exercise['duration']; ?> min</span>
+                                    <form method="POST" action="delete_exercise.php" onsubmit="return confirm('Are you sure you want to delete this exercise?');">
+                                        <input type="hidden" name="exercise_id" value="<?php echo $exercise['id']; ?>">
+                                        <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-900 transition">
+                                            Delete
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -74,9 +85,7 @@ $exercise_query->close();
                 <a href="log_exercise.php" class="mt-4 inline-block text-blue-600 hover:text-blue-800">Log New Exercise →</a>
             </div>
 
-            <div class="bg-white rounded-lg shadow p-6 md:col-span-2 mx-auto max-w-lg">
-                <img src="components/img/BMI-Chart.png" alt="BMI Chart" class="mx-auto w-full max-w-lg">
-            </div>
+            
 
             <div class="bg-white rounded-lg shadow p-6 md:col-span-2 mx-auto max-w-lg">
                 <h2 class="text-xl font-bold mb-4 text-center">Exercise Statistics</h2>
@@ -109,4 +118,12 @@ $exercise_query->close();
 
 <?php include('components/footer.php') ?>
 </body>
+
+<style>
+    .bmi-image {
+        max-width: 60%;
+        height: auto; 
+    }
+</style>
+
 </html>
