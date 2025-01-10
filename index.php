@@ -92,7 +92,7 @@ $exercise_query->close();
                 <div class="grid grid-cols-3 gap-4">
                     <?php
 
-                    $stats_query = $conn->prepare("SELECT COUNT(*) as total, SUM(duration) as total_duration FROM exercise_logs WHERE user_id = ?");
+                    $stats_query = $conn->prepare("SELECT COUNT(*) as total, SUM(duration) as total_duration FROM exercise_logs WHERE user_id = ? AND deleted_at IS NULL");
                     $stats_query->bind_param("i", $user_id);
                     $stats_query->execute();
                     $stats_result = $stats_query->get_result();
